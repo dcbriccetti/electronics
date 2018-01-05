@@ -1,8 +1,9 @@
 import RPi.GPIO as GPIO
-import time
+from time import sleep
+import colorsys
 from random import choice, randint
 
-ALL = 18, 23, 24
+ALL = 18, 24, 23
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ALL, GPIO.OUT)
 
@@ -10,14 +11,10 @@ pwms = [GPIO.PWM(c, 500) for c in ALL]
 for pwm in pwms:
     pwm.start(0)
 
-r = range(0, 101, 10)
-for redDc in r:
-    pwms[0].ChangeDutyCycle(redDc)
-    for greenDc in r:
-        print(redDc, greenDc)
-        pwms[1].ChangeDutyCycle(greenDc)
-        for blueDc in r:
-            pwms[2].ChangeDutyCycle(blueDc)
-            time.sleep(.01)
+for hue in range(100):
+    rgb = colorsys.hsv_to_rgb(hue / 100, 1, 1)
+    for i, value in enumerate(rgb):
+        pwms[i].ChangeDutyCycle(value * 100)
+        sleep(.1)
     
 GPIO.cleanup()
