@@ -8,10 +8,16 @@ GPIO.setup(ALL, GPIO.OUT)
 
 pwms = [GPIO.PWM(c, 500) for c in ALL]
 for pwm in pwms:
-    pwm.start(100)
+    pwm.start(0)
 
-for n in range(100):
-    choice(pwms).ChangeDutyCycle(randint(0, 100))
-    time.sleep(.3)
+r = range(0, 101, 10)
+for redDc in r:
+    pwms[0].ChangeDutyCycle(redDc)
+    for greenDc in r:
+        print(redDc, greenDc)
+        pwms[1].ChangeDutyCycle(greenDc)
+        for blueDc in r:
+            pwms[2].ChangeDutyCycle(blueDc)
+            time.sleep(.01)
     
 GPIO.cleanup()
