@@ -11,10 +11,10 @@ pwms = [GPIO.PWM(c, 500) for c in ALL]
 for pwm in pwms:
     pwm.start(0)
 
-for hue in range(100):
-    rgb = colorsys.hsv_to_rgb(hue / 100, 1, 1)
+for hue in range(1000):
+    rgb = colorsys.hsv_to_rgb(hue / 1000, 1, 1)
     for i, value in enumerate(rgb):
         pwms[i].ChangeDutyCycle(value * 100)
-        sleep(.1)
+        sleep(.01)
     
 GPIO.cleanup()
