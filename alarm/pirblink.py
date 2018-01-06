@@ -1,31 +1,21 @@
-import RPi.GPIO as GPIO
+from gpiozero import LED, MotionSensor
 from time import sleep
 
-GPIO.setmode(GPIO.BCM)
-RGB = RED, GREEN, BLUE = 18, 23, 24
-PIR_IN = 25
-GPIO.setup(RGB, GPIO.OUT)
-GPIO.setup(PIR_IN, GPIO.IN)
+leds = red, green, blue = [LED(pin) for pin in (18, 23, 24)]
+green.on()
+pir = MotionSensor(25)
 
 try:
     while True:
-        if (GPIO.input(PIR_IN)):
-            GPIO.output(GREEN, 0)
+        pir.wait_for_motion()
+        green.off()
+        while pir.motion_detected:
             for n in range(10):
-                GPIO.output(RED, 1)
-                sleep(.1)
-                GPIO.output(RED, 0)
-                GPIO.output(BLUE, 1)
-                sleep(.1)
-                GPIO.output(BLUE, 0)
-            sleep(1.5)
-            GPIO.output(GREEN, 1)
-        sleep(.1)
+                red .blink(.1, 0, 1, background=False)
+                blue.blink(.1, 0, 1, background=False)
+        green.on()
 except KeyboardInterrupt:
     pass
 
-print('done')
-for pin in RGB:
-    GPIO.output(pin, 0)
-    
-GPIO.cleanup()
+for led in leds:
+    led.off()
