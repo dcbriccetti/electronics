@@ -84,7 +84,17 @@ def index():
 def index():
     for n in range(8):
         show_combo(choice(combos), 2)
-    return template('home.tpl')    
+    return template('home.tpl')
+
+@route('/snazzyblink')
+def index():
+    for g in range(100):
+        GPIO.output(GREEN, 1)
+        time.sleep(.001)
+        GPIO.output(GREEN, 0)
+        time.sleep(.001)
+    return template('home.tpl')
+
 
 def show_combo(combo, time_shown_seconds):
     GPIO.output(combo, 1)
