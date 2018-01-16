@@ -1,7 +1,9 @@
-import spidev, time
+import time
+import mcp3008
 
-spi = spidev.SpiDev()
-spi.open(0, 0)
-r = spi.xfer2([1, (8 + 0) << 4, 0])
-print(r)
-spi.close()
+while True:
+    with mcp3008.MCP3008() as adc:
+        print(adc.read_all())
+        print(adc.read([mcp3008.CH0])[0])
+    time.sleep(2)
+    
