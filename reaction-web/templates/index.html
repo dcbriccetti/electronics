@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Reaction Time Game</title>
+    <link href="static/bootstrap.min.css" rel="stylesheet"/>
+    <style>
+        #scores, #event {
+            font-size: 200%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Reaction Time Game</h1>
+    <div id="event" class="alert alert-success" role="alert">
+    </div>
+    <table class="table" id="scores">
+        <thead>
+        <th>Name</th>
+        <th>Score</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <p><button id="reset" class="btn btn-primary btn-lg">Reset</button></p>
+</div>
+<script src="static/jquery-3.0.0.min.js"></script>
+<script src="static/reaction.js"></script>
+</body>
+</html>
