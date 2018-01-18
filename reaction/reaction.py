@@ -14,23 +14,23 @@ class Player:
 
 players = (Player('Black', 16, 13),
            Player('Red',   20, 19),
-           Player('White', 21, 26))
+           Player('White', 21, 26),
+           Player('Blue',  12,  6))
 
 def find_winners():
     start = time()
-    timeout = start + 5
+    timeout = start + 4
     
     while time() < timeout:
         winners = [player for player in players if player.button.is_pressed]
         if winners:
             return winners, time() - start
-
-    return [], 0
+    return [], 0  # Timed out
 
 while True:
-    sleep(1 + random() * 4)
+    sleep(1 + random() * 3)
     for p in players:
-        p.led.blink(.02, 0, 1)
+        p.led.blink(.1, 0, 1)
         
     winners, elapsed = find_winners()
     sleep(.4)  # Build suspense about who won
@@ -40,5 +40,7 @@ while True:
         player.wins += 1
 
     if winners:
-        print('Wins:', ', '.join(['%s: %d' % (players[i].name, player.wins)
-                                  for i, player in enumerate(players)]))
+        sorted_players = list(players)
+        sorted_players.sort(key=lambda player: player.wins, reverse=True)
+        print('Wins:', ', '.join(['%s: %d' % (player.name, player.wins)
+                                  for i, player in enumerate(sorted_players)]))
