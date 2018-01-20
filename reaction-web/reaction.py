@@ -11,6 +11,7 @@ from flask_json import FlaskJSON, as_json
 from gpiozero import Button, LED
 
 # Times below are in seconds
+SUSPENSE_TIME = .4
 MIN_WAIT = 1.5
 MAX_WAIT = 5
 WAIT_RANGE = MAX_WAIT - MIN_WAIT
@@ -86,10 +87,11 @@ def game_thread():
     while True:
         sleep(MIN_WAIT + random() * WAIT_RANGE)
         for player in players:
-            player.led.blink(BLINK_TIME, 0, 1)
-
+            player.led.on()
         winners, elapsed = find_winners()
-        sleep(.4)  # Build suspense about who won
+        for player in players:
+            player.led.off()
+        sleep(SUSPENSE_TIME)  # Build suspense about who won
         for player in winners:
             player.led.blink(WIN_BLINK_TIME, WIN_BLINK_TIME, WIN_BLINKS)
             elapsed_ms = int(elapsed * 1000)
