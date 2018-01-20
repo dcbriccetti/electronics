@@ -54,6 +54,7 @@ def reset():
     print('reset')
     for player in players:
         player.wins = 0
+        player.fastest_ms = 0;
     return {}
 
 @app.route("/status")
@@ -71,7 +72,7 @@ def pressing_players(): return [player for player in players if player.button.is
 def find_winners():
     disqualified = pressing_players()
     start = time()
-    sleep(.08)  # Skip any presses that are sooner than human reaction time would allow
+    sleep(.06)  # Skip any presses that are sooner than human reaction time would allow
     timeout = start + WAIT_RANGE
 
     while time() < timeout:
