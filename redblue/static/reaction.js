@@ -17,7 +17,7 @@ class ReactionTimeGame {
             const scoresTbody = $('#scores tbody');
             for (let nameScore of data.scores) {
                 scoresTbody.append(
-                    `<tr><td>${nameScore[0]}</td><td>${nameScore[1]}</td><td>${nameScore[2]}</td></tr>`);
+                    `<tr><td>${nameScore[0]}</td><td>${nameScore[1]}</td><td>${nameScore[2]}</td><td>${nameScore[3]}</td><td>${nameScore[4]}</td></tr>`);
             }
             setTimeout(game.updateStatus, 100);
         });

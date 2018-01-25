@@ -40,10 +40,8 @@ def index():
 @app.route("/reset")
 @as_json
 def reset():
-    print('reset')
     for player in players:
-        player.wins = 0
-        player.fastest_ms = 0;
+        player.reset()
     return {}
 
 @app.route("/status")
@@ -51,27 +49,31 @@ def reset():
 def status():
     event = queue.get()
     sorted_players = players_by_score()
-    names_scores = [[player.name, player.wins, player.fastest_ms or '']
+    names_scores = [[player.name, player.wins, player.fastest_ms() or '', player.mean_ms() or '', player.slowest_ms() or '']
                     for i, player in enumerate(sorted_players)]
     return {'event': event, 'scores': names_scores}
 
 
-def pressing_players(react_color_idx):
-    return [player for player in players if player.buttons[react_color_idx].is_pressed]
-
 def find_winners(react_color_idx):
     start = time()
     timeout = start + MAX_REACTION
+    complete = []
 
-    while time() < timeout:
-        winners = [player for player in players
-                   if len(player.presses) == 1
-                   and player.presses[0][0] == react_color_idx
-                   and player.presses[0][1] > start + MIN_REACTION]
-        if winners:
-            return winners, time() - start
-        sleep(.01)
-    return [], 0  # Timed out
+    while time() < timeout and len(complete) < len(players):
+        for player in players:
+            if player not in complete:
+                pp = player.presses
+                if len(pp) == 1 and pp[0][0] == react_color_idx and pp[0][1] > start + MIN_REACTION:
+                    player.led.off()
+                    elapsed = time() - start
+                    player.record_completion(elapsed)
+                    if len(complete) == 0:  # This is the winner
+                        queue.put('\n%s wins in %d milliseconds' % (player.name, int(elapsed * 1000)))
+                        player.wins += 1
+                        player.led.blink(WIN_BLINK_TIME, WIN_BLINK_TIME, 0, 0, (0, 1, 0), (0, 0, 0), WIN_BLINKS)
+                    complete.append(player)
+        sleep(.001)
+    return complete
 
 
 def game_thread():
@@ -81,17 +83,10 @@ def game_thread():
         for player in players:
             player.clear_old_clicks()
             player.led.color = react_colors[react_color_idx]
-        winners, elapsed = find_winners(react_color_idx)
+        complete = find_winners(react_color_idx)
         for player in players:
-            player.led.off()
-        sleep(SUSPENSE_TIME)  # Build suspense about who won
-        for player in winners:
-            player.led.blink(WIN_BLINK_TIME, WIN_BLINK_TIME, 0, 0, (0, 1, 0), (0, 0, 0), WIN_BLINKS)
-            elapsed_ms = int(elapsed * 1000)
-            queue.put('\n%s wins in %d milliseconds' % (player.name, elapsed_ms))
-            if not player.fastest_ms or elapsed_ms < player.fastest_ms:
-                player.fastest_ms = elapsed_ms
-            player.wins += 1
+            if not complete or player is not complete[0]:
+                player.led.off()
 
 threading.Thread(target=game_thread).start()
 app.run(host='localhost', threaded=True)
