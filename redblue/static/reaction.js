@@ -5,14 +5,14 @@ class ReactionTimeGame {
 		location.reload(true);
 	    }
         )});
-        this.updateStatus();
+        this.updateStatus(true);
     }
 
-    updateStatus() {
+    updateStatus(noWait) {
         console.log('Fetching status');
-        $.getJSON('status', {}, (data) => {
+        $.getJSON('status' + (noWait ? 'NoWait' : ''), {}, (data) => {
             console.log('Got status');
-            $('#event').text(data.event);
+            $('#event').text(data.event || '');
             $('#scores tbody').empty();
             const scoresTbody = $('#scores tbody');
             for (let nameScore of data.scores) {
