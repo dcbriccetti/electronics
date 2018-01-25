@@ -8,28 +8,18 @@ from time import time
 
 from flask import Flask, render_template
 from flask_json import FlaskJSON, as_json
-from gpiozero import Button, RGBLED
+from player import Player
 
 # Times below are in seconds
 SUSPENSE_TIME = .4
 MIN_WAIT = 1.5
 MAX_WAIT = 5
 MAX_REACTION = 2.5
+MIN_REACTION = .060
 WAIT_RANGE = MAX_WAIT - MIN_WAIT
 WIN_BLINK_TIME = .3
 WIN_BLINKS = 1
 
-class Player:
-    def __init__(self, name, button, led):
-        self.name = name
-        self.buttons = [Button(pin) for pin in button]
-        self.led = RGBLED(*led, pwm=False)
-        self.wins = 0
-        self.fastest_ms = None
-        
-    def pressed(self):
-        pass
-    
 players = (Player('One',  (16, 12), (26, 19, 13)),
            Player('Two',  (21, 20), ( 2,  3,  4)))
 react_colors = (1, 0, 0), (0, 0, 1)
@@ -70,16 +60,17 @@ def pressing_players(react_color_idx):
     return [player for player in players if player.buttons[react_color_idx].is_pressed]
 
 def find_winners(react_color_idx):
-    disqualified = pressing_players(react_color_idx)
     start = time()
-    sleep(.06)  # Ignore any presses that are sooner than human reaction time would allow
     timeout = start + MAX_REACTION
 
     while time() < timeout:
-        winners = [player for player in pressing_players(react_color_idx)
-                   if player not in disqualified]
+        winners = [player for player in players
+                   if len(player.presses) == 1
+                   and player.presses[0][0] == react_color_idx
+                   and player.presses[0][1] > start + MIN_REACTION]
         if winners:
             return winners, time() - start
+        sleep(.01)
     return [], 0  # Timed out
 
 
@@ -88,6 +79,7 @@ def game_thread():
         react_color_idx = randint(0, 1)
         sleep(MIN_WAIT + random() * WAIT_RANGE)
         for player in players:
+            player.clear_old_clicks()
             player.led.color = react_colors[react_color_idx]
         winners, elapsed = find_winners(react_color_idx)
         for player in players:
