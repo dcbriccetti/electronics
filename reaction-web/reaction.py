@@ -14,6 +14,7 @@ from gpiozero import Button, LED
 SUSPENSE_TIME = .4
 MIN_WAIT = 1.5
 MAX_WAIT = 5
+MAX_REACTION = 1
 WAIT_RANGE = MAX_WAIT - MIN_WAIT
 BLINK_TIME = .1
 WIN_BLINK_TIME = .05
@@ -73,8 +74,8 @@ def pressing_players(): return [player for player in players if player.button.is
 def find_winners():
     disqualified = pressing_players()
     start = time()
-    sleep(.06)  # Skip any presses that are sooner than human reaction time would allow
-    timeout = start + WAIT_RANGE
+    sleep(.06)  # Ignore any presses that are sooner than human reaction time would allow
+    timeout = start + MAX_REACTION
 
     while time() < timeout:
         winners = [player for player in pressing_players() if player not in disqualified]
