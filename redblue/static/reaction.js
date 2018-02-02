@@ -2,9 +2,10 @@ class ReactionTimeGame {
     constructor() {
         $('#reset').click(() => {
             $.getJSON('reset', {}, (data) => {
-		location.reload(true);
-	    }
-        )});
+                    location.reload(true);
+                }
+            )
+        });
         this.updateStatus(true);
     }
 
