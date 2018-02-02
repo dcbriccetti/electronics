@@ -61,7 +61,8 @@ class GameLoop:
                 for player in self.players:
                     if player not in complete:
                         pp = player.presses
-                        if len(pp) == 1 and pp[0].index == react_color_idx and pp[0].time > start + MIN_REACTION:
+                        pressed_indexes = [press.index for press in pp]
+                        if pressed_indexes == react_color_indexes and pp[0].time > start + MIN_REACTION:
                             player.led.off()
                             elapsed = time() - start
                             player.record_completion(elapsed)
@@ -76,12 +77,15 @@ class GameLoop:
             return complete
 
         while True:
-            react_color_idx = randint(0, 1)
+            react_color_indexes = [randint(0, 1) for n in range(1 + randint(0, 3))]
             sleep(MIN_WAIT + random() * WAIT_RANGE)
             for player in self.players:
                 player.clear_old_clicks()
-                player.led.color = self.react_colors[react_color_idx]
-            complete = find_winners()
-            for player in self.players:
-                if not complete or player is not complete[0]:
+            for react_color_index in react_color_indexes:
+                for player in self.players:
+                    player.led.color = self.react_colors[react_color_index]
+                sleep(.3)
+                for player in self.players:
                     player.led.off()
+                sleep(.1)
+            find_winners()
