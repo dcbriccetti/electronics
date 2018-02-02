@@ -25,8 +25,7 @@ def reset():
 @as_json
 def status():
     event = game.get_event()
-    names_scores = game.names_and_scores()
-    return {'event': event, 'scores': names_scores}
+    return {'event': event, 'scores': game.names_and_scores()} if event else None
 
 
 @app.route("/statusNoWait")

@@ -1,8 +1,11 @@
 from time import time, sleep
 from random import random, randint
 import threading
-from queue import Queue
+from queue import Queue, Empty
 from player import Player
+import logging
+logging.basicConfig(format='%(asctime)s %(threadName)s %(message)s', level=logging.INFO, datefmt='%I:%M:%S %p')
+logger = logging.getLogger(__name__)
 
 # Times below are in seconds
 MIN_WAIT = 1.5
@@ -21,7 +24,7 @@ class GameLoop:
         self.react_colors = (1, 0, 0), (0, 0, 1)
         self.queue = Queue()
 
-        threading.Thread(target=self._game_thread).start()
+        threading.Thread(target=self._game_thread, name='GameLoop').start()
 
     def players_by_score(self):
         sorted_players = list(self.players)
@@ -40,7 +43,13 @@ class GameLoop:
             player.reset()
 
     def get_event(self):
-        return self.queue.get()
+        logger.debug('Getting event')
+        try:
+            event = self.queue.get(timeout=5)  # Without timeout, old threads will consume events after a reload
+            logger.debug('Got event ' + event)
+        except Empty:
+            event = None
+        return event
 
     def _game_thread(self):
         def find_winners():
@@ -57,7 +66,9 @@ class GameLoop:
                             elapsed = time() - start
                             player.record_completion(elapsed)
                             if len(complete) == 0:  # This is the winner
-                                self.queue.put('\n%s wins in %d milliseconds' % (player.name, int(elapsed * 1000)))
+                                winner_msg = '%s wins in %d milliseconds' % (player.name, int(elapsed * 1000))
+                                self.queue.put(winner_msg)
+                                logger.debug('Put in queue: ' + winner_msg)
                                 player.wins += 1
                                 player.led.blink(WIN_BLINK_TIME, WIN_BLINK_TIME, 0, 0, (0, 1, 0), (0, 0, 0), WIN_BLINKS)
                             complete.append(player)
