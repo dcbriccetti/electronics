@@ -1,7 +1,7 @@
 from time import time
 from gpiozero import RGBLED, Button
-
-KEEP_IF_NEWER_THAN_SECONDS = 1
+from buttonpress import ButtonPress
+from settings import DISCARD_PRESSES_OLDER_THAN
 
 
 def to_ms(value):
@@ -22,7 +22,7 @@ class Player:
     def clear_old_clicks(self):
         time_now = time()
         self.presses = [press for press in self.presses
-                        if time_now - press.time < KEEP_IF_NEWER_THAN_SECONDS]
+                        if time_now - press.time < DISCARD_PRESSES_OLDER_THAN]
 
     def record_completion(self, elapsed_time):
         self.elapsed_times.append(elapsed_time)
@@ -47,11 +47,3 @@ class Player:
         button = Button(pin)
         button.when_pressed = lambda: self._pressed(index)
         return button
-
-
-class ButtonPress:
-    'Which button was pressed, and when'
-
-    def __init__(self, index, time):
-        self.index = index
-        self.time = time

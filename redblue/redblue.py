@@ -1,10 +1,13 @@
 # Reaction Time Game
-# Inspired by a project in The Arduino Inventor's Guide
+
 from flask import Flask, render_template
 from flask_json import FlaskJSON, as_json
 from gameloop import GameLoop
+from player import Player
 
-game = GameLoop()
+game = GameLoop((Player('One',   buttons=(16, 12), led=(26, 19, 13)),
+                 Player('Two',   buttons=(21, 20), led=( 2,  3,  4)),
+                 Player('Three', buttons=(23, 24), led=(17, 27, 22))))
 app = Flask(__name__)
 json = FlaskJSON(app)
 
