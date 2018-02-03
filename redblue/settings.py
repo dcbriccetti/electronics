@@ -1,14 +1,20 @@
 'Application settings'
+from enum import Enum
 
-MAX_SEQUENCE_LENGTH = 4
+MAX_SEQUENCE_LENGTH = 6
 
 # Times below are in seconds
 
-DISCARD_PRESSES_OLDER_THAN = 1
+DISCARD_PRESSES_OLDER_THAN = 0.5
 MIN_WAIT = 1.5
 MAX_WAIT = 5
-MAX_REACTION = 2.5
-MIN_REACTION = .060
+MAX_REACTION_TIME_PER_SEQUENCE_ELEMENT = 1
 WAIT_RANGE = MAX_WAIT - MIN_WAIT
-WIN_BLINK_TIME = .3
-WIN_BLINKS = 1
+
+
+class GameMode(Enum):
+    Single = 1
+    Sequence = 2
+
+
+GAME_MODE = GameMode.Sequence

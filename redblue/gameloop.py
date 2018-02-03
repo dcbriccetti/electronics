@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep, time
 from random import random, randint
 import threading
 from queue import Queue, Empty
@@ -41,19 +41,29 @@ class GameLoop:
 
     def _game_thread(self):
         while True:
-            react_color_indexes = [randint(0, len(self.react_colors) - 1)
-                                   for n in range(1 + randint(0, MAX_SEQUENCE_LENGTH - 1))]
-            sleep(MIN_WAIT + random() * WAIT_RANGE)
+            def random_color():
+                return randint(0, len(self.react_colors) - 1)
+
+            def random_color_sequence(random_color):
+                return [random_color() for n in range(1 + randint(0, MAX_SEQUENCE_LENGTH - 1))]
+
+            sequence_mode = GAME_MODE == GameMode.Sequence
+            react_color_indexes = random_color_sequence(random_color) if sequence_mode else [1]
+            sleep(MIN_WAIT + (0 if sequence_mode else random() * WAIT_RANGE))
+
+            valid_press_start = time()
+            self.flash_leds(react_color_indexes)
 
             for player in self.players:
-                player.clear_old_clicks()
+                player.clear_all_clicks() if sequence_mode else player.clear_old_clicks()
 
-            for react_color_index in react_color_indexes:
-                for player in self.players:
-                    player.led.color = self.react_colors[react_color_index]
-                sleep(.3)
-                for player in self.players:
-                    player.led.off()
-                sleep(.1)
+            handle_player_responses(self.players, self.queue, react_color_indexes, valid_press_start)
 
-            handle_player_responses(self.players, self.queue, react_color_indexes)
+    def flash_leds(self, react_color_indexes):
+        for react_color_index in react_color_indexes:
+            for player in self.players:
+                player.led.color = self.react_colors[react_color_index]
+            sleep(.3)
+            for player in self.players:
+                player.led.off()
+            sleep(.1)
