@@ -1,30 +1,31 @@
 from time import time, sleep
-from ledcolors import GREEN, OFF
-from settings import MAX_REACTION_TIME_PER_SEQUENCE_ELEMENT, GameMode, GAME_MODE
+
+from leds import light_winner, light_non_winner
+from settings import *
+from logger import logger
 
 
-def handle_player_responses(players, queue, react_color_indexes, valid_press_start):
-    start = time()
-    timeout = start + MAX_REACTION_TIME_PER_SEQUENCE_ELEMENT * len(react_color_indexes)
-    complete = []
+def handle_player_responses(players, queue, correct_sequence, valid_press_start):
+    timeout = time() + MAX_REACTION_TIME_PER_SEQUENCE_ELEMENT * len(correct_sequence)
+    finished_players = []
 
-    while time() < timeout and len(complete) < len(players):
+    while time() < timeout and len(finished_players) < len(players):
         for player in players:
-            if player not in complete:
-                pp = player.presses
-                pressed_buttons = [press.index for press in pp]
-                if pressed_buttons == react_color_indexes and pp[0].time > valid_press_start:
-                    player.led.off()
-                    elapsed = time() - valid_press_start
+            if player not in finished_players:
+                presses = player.presses
+                pressed_buttons = [press.index for press in presses]
+                if presses:
+                    logger.info('%s: %s. Correct: %s' % (player.name, pressed_buttons, correct_sequence))
+                if pressed_buttons == correct_sequence and presses[0].time > valid_press_start:
+                    elapsed = presses[-1].time - valid_press_start
                     player.record_completion(elapsed)
-                    if len(complete) == 0:  # This is the winner
-                        winner_msg = '%s wins in %d milliseconds' % (player.name, int(elapsed * 1000))
-                        queue.put(winner_msg)
+                    if len(finished_players) == 0:  # This is the winner
+                        queue.put('%s wins in %d milliseconds' % (player.name, int(elapsed * 1000)))
                         player.wins += 1
-                        player.led.blink(0.1, 0.1, 0, 0, GREEN, OFF, 3)
+                        light_winner(player)
                     elif GAME_MODE == GameMode.Sequence:
-                        player.led.blink(0.2, 0, 0, 0, GREEN, OFF, 1)
-                    complete.append(player)
+                        light_non_winner(player)
+                    finished_players.append(player)
         sleep(.1)
 
-    return complete
+    return finished_players
