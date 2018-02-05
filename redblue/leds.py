@@ -17,11 +17,11 @@ def flash_leds(color_indexes, players):
         sleep(.2)
 
 
-def light_winner(player):
+def signal_winner(player):
     'Signal the winner'
     player.led.blink(0.1, 0.1, 0, 0, GREEN, OFF, 3)
 
 
-def light_non_winner(player):
+def signal_non_winner(player):
     'Signal a player who completed the sequence, but who wasn’t first'
     player.led.blink(0.2, 0, 0, 0, GREEN, OFF, 1)

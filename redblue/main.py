@@ -17,10 +17,8 @@ json = FlaskJSON(app)
 def names_and_scores():
     sorted_players = list(game.players)
     sorted_players.sort(key=lambda player: player.wins, reverse=True)
-    names_scores = [
-        [p.name, p.wins, p.fastest_ms() or '', p.mean_ms() or '', p.slowest_ms() or '']
-        for i, p in enumerate(sorted_players)]
-    return names_scores
+    return [[p.name, p.wins, p.fastest_ms() or '', p.mean_ms() or '', p.slowest_ms() or '']
+            for p in sorted_players]
 
 
 @app.route("/")
