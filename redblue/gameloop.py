@@ -1,5 +1,4 @@
 import threading
-from queue import Queue
 from random import random, randint
 from time import sleep, time
 
@@ -9,9 +8,11 @@ from settings import *
 
 
 class GameLoop:
-    def __init__(self, players):
+    'The main, non-webapp part of the game, running in a second thread.'
+
+    def __init__(self, players, event_queue):
         self.players = players
-        self.queue = Queue()
+        self.event_queue = event_queue
 
         threading.Thread(target=self._game_thread, name='GameLoop').start()
 
@@ -31,4 +32,4 @@ class GameLoop:
             for player in self.players:
                 player.clear_all_clicks() if GAME_MODE == GameMode.Sequence else player.clear_old_clicks()
 
-            handle_player_responses(self.players, self.queue, color_indexes, valid_press_start)
+            handle_player_responses(self.players, self.event_queue, color_indexes, valid_press_start)
