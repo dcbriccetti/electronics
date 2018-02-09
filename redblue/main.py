@@ -54,7 +54,7 @@ def status():
 @app.route("/statusNoWait")
 @as_json
 def status_nowait():
-    names_scores = names_and_scores()
-    return {'scores': names_scores}
+    return {'scores': names_and_scores()}
+
 
 app.run(host='localhost', threaded=True)
