@@ -1,4 +1,9 @@
-'Maps light level to multiple circles of colors'
+'''Maps light level to multiple circles of colors.
+
+The light intensity level is divided into four bands.
+Dim light creates a growing circle of blue lights,
+followed by circles of green, yellow, and then red lights
+for the highest intensity.'''
 
 import time
 import board
